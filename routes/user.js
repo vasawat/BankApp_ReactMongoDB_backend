@@ -66,30 +66,38 @@ router.post("/token", async (req, res) => {
 });
 
 router.post("/createtransaction", async (req, res) => {
-  const { userId, transferTo, transferAmount } = req.body;
-  const fromUser = await UserModel.findById(userId);
-  const toUser = await UserModel.findOne({email: transferTo});
+  try {
+    const { userId, transferTo, transferAmount } = req.body;
+    const fromUser = await UserModel.findById(userId);
+    const toUser = await UserModel.findOne({ email: transferTo });
 
-  const newTransaction = new TransectionModel({
-    from: fromUser.email,
-    to: toUser.email,
-    amount: transferAmount,
-  });
-  newTransaction
-    .save()
-    .then(() => {
-      console.log("Transections created");
-    })
-    .catch((err) => {
-      console.error(err);
+    const newTransaction = new TransectionModel({
+      from: fromUser.email,
+      to: toUser.email,
+      amount: transferAmount,
     });
+    newTransaction
+      .save()
+      .then(() => {
+        console.log("Transections created");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  } catch (err) {
+    console.log(err);
+  }
 });
 router.post("/transaction", async (req, res) => {
-  const { userEmail } = req.body;
-  const UserTransection = await TransectionModel.find({ from: userEmail });
+  try {
+    const { userEmail } = req.body;
+    const UserTransection = await TransectionModel.find({ from: userEmail });
     const UserTransection2 = await TransectionModel.find({ to: userEmail });
     const UserTransection3 = UserTransection.concat(UserTransection2);
-  res.json(UserTransection3);
-})
+    res.json(UserTransection3);
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 module.exports = router;
