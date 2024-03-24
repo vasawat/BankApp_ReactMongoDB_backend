@@ -17,10 +17,13 @@ router.post("/register", async (req, res) => {
     newUser
       .save()
       .then(() => {
+        res.json({ success: "user created" });
         console.log("user created");
       })
       .catch((err) => {
+        res.json({ error: "error in creating user" });
         console.error(err);
+        console.log("error in creating user");
       });
   });
 });
@@ -31,9 +34,14 @@ router.post("/login", async (req, res) => {
   const thisUser = await UserModel.findOne({ email });
   bcrypt.compare(password, thisUser.password, function (err, result) {
     if (result) {
-      const token = jwt.sign({ userId: thisUser._id }, "haidilao", {
-        expiresIn: "1h",
-      });
+      const payload = {
+        sub: thisUser._id,
+        email: thisUser.email,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60,
+      };
+      const SECRET = "haidilao";
+      const token = jwt.sign(payload, SECRET);
       console.log("login success");
       const newData = { ...thisUser._doc, token };
       res.json(newData);
